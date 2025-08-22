@@ -97,9 +97,12 @@ public class MyGamemanager {
 
         cnt = Gda.updateList(mg);
 
-        if(cnt>0){
-            System.out.println("추가 성공!");
-        }else {
+        if(cnt==1){
+            System.out.println("변경 성공!");
+        }else if(cnt ==0){
+            System.out.println("문제 발생");
+        }
+        else {
             System.out.println("실패");
         }
         return cnt;

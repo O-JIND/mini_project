@@ -90,30 +90,36 @@ public class MyGameDao extends SuperDao{
     public int updateList(MyGame mg) {
         Map<Object,Object> mapgame = null;
         Connection conn =null;
-        int update =-1, rate = 0;
-        double price =0;
-        String maker=null,releasedate=null;
+        int update =-1;
+
+
         StringBuilder sql =new StringBuilder("Update MyGame set ");
         try{
             mapgame = new HashMap<>();
             conn = super.getConnection();
-
+            String maker=null,releasedate=null;
             String title = mg.getTitle();
+            int rate =0;
+            double price =0;
+
             mapgame.put("title",title);
-            if(mg.getPrice()!=0){  price= mg.getPrice();  }
-            mapgame.put("price",price);
-            if(!mg.getMaker().isEmpty()){  maker = mg.getMaker();       }
-            mapgame.put("maker",maker);
-            if(!mg.getreleasedate().isEmpty()){   releasedate = mg.getreleasedate();  }
-            mapgame.put("releasedate",releasedate);
-            if(mg.getRate()!=0){            }
-            mapgame.put("rate",rate);
+            if(mg.getPrice()!=0){  price= mg.getPrice();
+                mapgame.put("price",price);}
+
+            if(!mg.getMaker().isEmpty()){  maker = mg.getMaker();
+            mapgame.put("maker",maker);}
+
+            if(!mg.getreleasedate().isEmpty()){   releasedate = mg.getreleasedate();
+            mapgame.put("releasedate",releasedate);}
+
+            if(mg.getRate()!=0){    rate = mg.getRate();mapgame.put("rate",rate);    }
+
             int i = 1;
             for (Object s: mapgame.keySet()){
                 String plus = s + "=?";
                 sql.append(plus);
                 if(i< mapgame.size()-1){
-                    plus = s + " , ";
+                    plus = " , ";
                     sql.append(plus);
                 }
                 i++;
@@ -121,8 +127,7 @@ public class MyGameDao extends SuperDao{
             PreparedStatement pstmt = conn.prepareStatement(sql.toString());
             int j = 1;
             for (Object s: mapgame.values()){
-                pstmt.setObject(j,s);
-                j++;
+                pstmt.setObject(j++,s);
             }pstmt.setString(j,title);
             update = pstmt.executeUpdate();
             conn.commit();
