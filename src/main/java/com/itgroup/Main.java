@@ -40,7 +40,7 @@ public class Main {
                     magame.addList();//
                     break;
                 case 3:
-                    magame.updateList();
+                    magame.updateList();//
                     break;
                 case 4:
                     magame.removeList();//

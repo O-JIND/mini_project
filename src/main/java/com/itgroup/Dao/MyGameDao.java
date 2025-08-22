@@ -88,19 +88,16 @@ public class MyGameDao extends SuperDao{
 
 
     public int updateList(MyGame mg) {
-        List<Object>set= null;
         Map<Object,Object> mapgame = null;
         Connection conn =null;
         int update =-1, rate = 0;
         double price =0;
-        String maker,releasedate;
-        String sql = "Update MyGame set " + set;
-        sql+="where title =  ?";
+        String maker=null,releasedate=null;
+        StringBuilder sql =new StringBuilder("Update MyGame set ");
         try{
-            set = new ArrayList<>();
             mapgame = new HashMap<>();
             conn = super.getConnection();
-            PreparedStatement pstmt = conn.prepareStatement(sql);
+
             String title = mg.getTitle();
             mapgame.put("title",title);
             if(mg.getPrice()!=0){  price= mg.getPrice();  }
@@ -111,29 +108,23 @@ public class MyGameDao extends SuperDao{
             mapgame.put("releasedate",releasedate);
             if(mg.getRate()!=0){            }
             mapgame.put("rate",rate);
-
-
-
-
-
-
-
-
-
-
-
+            int i = 1;
+            for (Object s: mapgame.keySet()){
+                String plus = s + "=?";
+                sql.append(plus);
+                if(i< mapgame.size()-1){
+                    plus = s + " , ";
+                    sql.append(plus);
+                }
+                i++;
+            } sql.append("where title = ? ");
+            PreparedStatement pstmt = conn.prepareStatement(sql.toString());
+            int j = 1;
+            for (Object s: mapgame.values()){
+                pstmt.setObject(j,s);
+                j++;
+            }pstmt.setString(j,title);
             update = pstmt.executeUpdate();
-
-
-
-
-
-
-
-
-
-
-
             conn.commit();
         }catch (SQLException e) {
             try{
@@ -273,7 +264,7 @@ public class MyGameDao extends SuperDao{
 
             while(rs.next()) {
                 int a = rs.getInt("cnt");
-                if (a > 1) {
+                if (a == 1) {
                     return true;
                 }
             }

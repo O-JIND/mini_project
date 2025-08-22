@@ -64,8 +64,10 @@ public class MyGamemanager {
 
     public int updateList() {
         int cnt =-1 ;
+        showList();
+        sc= new Scanner(System.in);
         MyGame mg = new MyGame();
-        System.out.println("title");
+        System.out.print("Update title : ");
         String title=sc.nextLine().trim();
         if (Gda.SamVer(title)) {
             mg.setTitle(title);
@@ -75,20 +77,20 @@ public class MyGamemanager {
         }
 
 
-        System.out.println("price (변경 없으면 enter)");
+        System.out.print ("price (변경 없으면 0) : ");
         double price=sc.nextDouble();
         mg.setPrice(price);
         sc.nextLine();
 
-        System.out.println("maker (변경 없으면 enter)");
+        System.out.print("maker (변경 없으면 enter) : ");
         String maker=sc.nextLine().trim();
         mg.setMaker(maker);
 
-        System.out.println("releasedate (변경 없으면 enter)");
+        System.out.print("releasedate (변경 없으면 enter) : ");
         String releasedate=sc.nextLine().trim();
         mg.setreleasedate(releasedate);
 
-        System.out.println("rate (변경 없으면 enter)");
+        System.out.print("rate (변경 없으면 0) : ");
         int rate=sc.nextInt();
         mg.setRate(rate);
         sc.nextLine();
@@ -100,8 +102,6 @@ public class MyGamemanager {
         }else {
             System.out.println("실패");
         }
-
-
         return cnt;
 
     }
