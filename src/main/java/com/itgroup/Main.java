@@ -25,8 +25,9 @@ public class Main {
                     3 : 정보 수정
                     4 : 게임 삭제
                     5 : 제작사 별 목록
-                    6 : My best 3
-                    7 : 관심 목록
+                    6 : 장르 별 게임 검색
+                    7 : top 3 목록
+                    8 : 모든 게임 개수
                     """);
 
 
@@ -49,10 +50,13 @@ public class Main {
                     magame.SortbyMaker();//
                     break;
                 case 6:
-                    magame.bestGame3();
+                    magame.genreList();//
                     break;
                 case 7:
-                    magame.wishList();
+                    magame.bestGame3();
+                    break;
+                case 8:
+                    magame.selectAll();//
                     break;
                 case 0:
                     magame.end();//

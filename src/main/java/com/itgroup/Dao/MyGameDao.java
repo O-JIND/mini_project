@@ -114,7 +114,7 @@ public class MyGameDao extends SuperDao{
 
             if(mg.getRate()!=0){    rate = mg.getRate();mapgame.put("rate",rate);    }
 
-            int i = 1;
+            int i = 0;
             for (Object s: mapgame.keySet()){
                 String plus = s + "=?";
                 sql.append(plus);
@@ -123,7 +123,7 @@ public class MyGameDao extends SuperDao{
                     sql.append(plus);
                 }
                 i++;
-            } sql.append("where title = ? ");
+            } sql.append(" where title = ? ");
             PreparedStatement pstmt = conn.prepareStatement(sql.toString());
             int j = 1;
             for (Object s: mapgame.values()){
@@ -142,6 +142,7 @@ public class MyGameDao extends SuperDao{
             try {
                 if(conn!=null){
                     conn.close();
+
                 }
             } catch (SQLException e) {
                 throw new RuntimeException(e);
@@ -212,16 +213,15 @@ public class MyGameDao extends SuperDao{
 
 
     public List<MyGame> SortbyMaker(String maker) {
-        List<MyGame> mylist = null;
+        List<MyGame> mylist =new ArrayList<>();;
         Connection conn = null;
-        String sql = "select *from MyGame order by maker = ?";
+        String sql = "select *from MyGame where maker = ? ";
 
         try{
             conn = super.getConnection();
             PreparedStatement pstmt = conn.prepareStatement(sql);
             pstmt.setString(1,maker);
             ResultSet rs = pstmt.executeQuery();
-            mylist=new ArrayList<>();
             while (rs.next()){
                 MyGame mg = makeList(rs);
                 mylist.add(mg);
@@ -280,6 +280,30 @@ public class MyGameDao extends SuperDao{
         return false;
 
     }
+    public Boolean VerGenre(String genre){
+        String sql = "select count(*) as cnt from MyGame where genre=?";
+
+        try{
+            Connection conn = super.getConnection();
+            PreparedStatement pstmt = conn.prepareStatement(sql);
+            pstmt.setString(1,genre);
+            ResultSet rs = pstmt.executeQuery();
+
+            while(rs.next()) {
+                int a = rs.getInt("cnt");
+                if (a > 0) {
+                    return true;
+                }
+            }
+        }catch (SQLException e) {
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        return false;
+
+    }
+
+
 
 
 
@@ -306,7 +330,6 @@ public class MyGameDao extends SuperDao{
 
 
     public void showList(List<MyGame> list){
-        MyGame ml=new MyGame();
         for(MyGame s : list){
             String title = s.getTitle();
             double price =  s.getPrice();
@@ -325,5 +348,47 @@ public class MyGameDao extends SuperDao{
     }
 
 
+    public int selectAll() {
+        String sql = "select count(*) as cnt from MyGame";
+        int maa =0;
+        try{
+            Connection conn = super.getConnection();
+            PreparedStatement pstmt = conn.prepareStatement(sql);
+            ResultSet rs = pstmt.executeQuery();
+            if(rs.next()){
+                maa = rs.getInt("cnt");
+            }
+        }catch (SQLException e) {
+            e.printStackTrace();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+            return maa;
+    }
 
+
+
+    public List<MyGame> genreList(String search) {
+        List<MyGame>genre=new ArrayList<>();
+        String sql = "select * from MyGame where genre like ?";
+        Connection conn = null;
+        try{
+            conn = super.getConnection();
+            PreparedStatement pstmt = conn.prepareStatement(sql);
+            String put =  "'%"+search+"%'";
+            pstmt.setString(1,put);
+            ResultSet rs = pstmt.executeQuery();
+            while (rs.next()){
+                MyGame bean = makeList(rs);
+                genre.add(bean);
+            }
+        }catch (SQLException e) {
+
+
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
+        return genre;
+    }
 }

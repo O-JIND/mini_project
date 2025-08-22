@@ -29,17 +29,24 @@ select  * from WORTHFULL;
 select  * from TOP;
 
 
-update  MYGAME  set title = ? , ? , ? where]]></console>
+
+
+select * from MyGame where genre like '%Indie%'?]]></console>
     </connection>
   </component>
   <component name="DBNavigator.Project.DatabaseEditorStateManager">
     <last-used-providers />
   </component>
   <component name="DBNavigator.Project.DatabaseFileManager">
-    <open-files />
+    <open-files>
+      <object connection-id="df1ccacb-cfcb-46f3-91f6-efdf6818daec" object-ref="consoles/ichigo" />
+    </open-files>
   </component>
   <component name="DBNavigator.Project.DatabaseSessionManager">
     <connection id="df1ccacb-cfcb-46f3-91f6-efdf6818daec" />
+  </component>
+  <component name="DBNavigator.Project.ExecutionManager">
+    <retain-sticky-names value="false" />
   </component>
   <component name="DBNavigator.Project.JavaUploadManager">
     <uploader-states />

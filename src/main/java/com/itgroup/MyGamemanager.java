@@ -5,7 +5,7 @@ import com.itgroup.Dao.MyGameDao;
 import java.util.*;
 public class MyGamemanager {
     MyGameDao Gda;
-    Scanner sc =null;
+    Scanner sc =new Scanner(System.in);
     public MyGamemanager(MyGameDao Gda) {
         this.Gda=Gda;
     }
@@ -65,10 +65,9 @@ public class MyGamemanager {
     public int updateList() {
         int cnt =-1 ;
         showList();
-        sc= new Scanner(System.in);
         MyGame mg = new MyGame();
         System.out.print("Update title : ");
-        String title=sc.nextLine().trim();
+        String title=sc.nextLine();
         if (Gda.SamVer(title)) {
             mg.setTitle(title);
         }else {
@@ -110,6 +109,7 @@ public class MyGamemanager {
     }
 
 
+
     public int removeList() {
         int cnt =-1 ;
 
@@ -140,6 +140,21 @@ public class MyGamemanager {
         return makerlist;
     }
 
+    public List<MyGame> genreList() {
+        String search = sc.next();
+        List<MyGame> genre =null;
+        if(Gda.VerGenre(search)){
+            genre= Gda.genreList(search);
+            Gda.showList(genre);
+        }else {
+            System.out.println("존재 하지 않는 장르입니다.");
+        }
+
+
+        return genre;
+    }
+
+
 
     public void bestGame3() {
 
@@ -147,10 +162,10 @@ public class MyGamemanager {
     }
 
 
-    public void wishList() {
 
 
-    }
+
+
 
 
     public void end() {
@@ -168,5 +183,11 @@ public class MyGamemanager {
     }
 
 
+    public int selectAll() {
+        int cntall = Gda.selectAll();
+        String msg = "총 게임 수 : "+ cntall;
+        System.out.println(msg);
 
+        return cntall;
+    }
 }
