@@ -25,10 +25,8 @@ public class Main {
                     3 : 정보 수정
                     4 : 게임 삭제
                     5 : 제작사 별 목록
-                    6 : 장르 추가
-                    7 : 장르 별 게임 검색
-                    8 : Top3 games
-                    9 : 모든 게임 개수
+                    6 : 장르 별 게임 검색
+                    7 : 모든 게임 개수
                     """);
 
 
@@ -42,22 +40,19 @@ public class Main {
                     magame.addList();//
                     break;
                 case 3:
-                    magame.updateList();//
+                    magame.updateList();
                     break;
                 case 4:
-                    magame.removeList();//
+                    magame.removeList();
                     break;
                 case 5:
-                    magame.SortbyMaker();//
+                    magame.SortbyMaker();
                     break;
                 case 6:
-                    magame.genreList();//
+                    magame.genreList();
                     break;
                 case 7:
-                    magame.bestGame3();
-                    break;
-                case 8:
-                    magame.selectAll();//
+                    magame.selectAll();
                     break;
                 case 0:
                     magame.end();//

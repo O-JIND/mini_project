@@ -22,10 +22,9 @@ public class MyGamemanager {
         String genres=null;
         StringBuilder gen = new StringBuilder();
         MyGame mg = new MyGame();
-        Gda.viewTitle();
-
-
-        int no = Gda.countList()+1;
+        List<MyGame>viewer =Gda.viewTitle();
+        viewone(viewer);
+        int no = Gda.countList();
         mg.setNo(no);
         System.out.println("title");
         String title=sc.nextLine().trim();
@@ -44,22 +43,18 @@ public class MyGamemanager {
         System.out.println("maker");
         String maker=sc.nextLine().trim();
         mg.setMaker(maker);
+
         while(true){
         System.out.println("genres");
         genres=sc.nextLine().trim();
-
         gen.append(genres);
-        if(genres!=null){
-            gen.append(", ");
-            continue;
-        }else{
+        gen.append(", ");
+        if(genres.isEmpty()){
             gen.deleteCharAt(gen.length()-1);
             break;
         }
         }
         mg.setGenres(gen.toString());
-
-
 
         System.out.println("releasedate");
         String releasedate=sc.nextLine().trim();
@@ -86,9 +81,14 @@ public class MyGamemanager {
 
     public int updateList() {
         int cnt =-1 ;
-        Gda.viewTitle();
+        List<MyGame>viewer =Gda.viewTitle();
+        viewone(viewer);
         MyGame mg = new MyGame();
+        String genres=null;
+        StringBuilder gen = new StringBuilder();
         System.out.print("Update title : ");
+        int no = Gda.countList();
+        mg.setNo(no);
         String title=sc.nextLine();
         if (Gda.SamVer(title)) {
             mg.setTitle(title);
@@ -106,6 +106,18 @@ public class MyGamemanager {
         System.out.print("maker (변경 없으면 enter) : ");
         String maker=sc.nextLine().trim();
         mg.setMaker(maker);
+
+        while(true){
+            System.out.println("genres (변경 없으면 enter)");
+            genres=sc.nextLine().trim();
+            gen.append(genres);
+            gen.append(", ");
+            if(genres.isEmpty()){
+                gen.deleteCharAt(gen.length()-1);
+                break;
+            }
+        }
+        mg.setGenres(gen.toString());
 
         System.out.print("releasedate (변경 없으면 enter) : ");
         String releasedate=sc.nextLine().trim();
@@ -176,20 +188,6 @@ public class MyGamemanager {
         return genre;
     }
 
-
-
-    public void bestGame3() {
-
-
-    }
-
-
-
-
-
-
-
-
     public void end() {
         sc=new Scanner(System.in);
        try {
@@ -211,5 +209,13 @@ public class MyGamemanager {
         System.out.println(msg);
 
         return cntall;
+    }
+    public void viewone(List<MyGame> list){
+        for(MyGame s : list){
+            String title = s.getTitle();
+            String msg = "title : "+title + "||";
+            System.out.println(msg);
+
+        }
     }
 }
