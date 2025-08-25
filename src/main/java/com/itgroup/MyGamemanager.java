@@ -19,8 +19,14 @@ public class MyGamemanager {
 
     public int addList() {
         int cnt =-1 ;
+        String genres=null;
+        StringBuilder gen = new StringBuilder();
         MyGame mg = new MyGame();
+        Gda.viewTitle();
 
+
+        int no = Gda.countList()+1;
+        mg.setNo(no);
         System.out.println("title");
         String title=sc.nextLine().trim();
         if (!Gda.SamVer(title)) {
@@ -38,6 +44,22 @@ public class MyGamemanager {
         System.out.println("maker");
         String maker=sc.nextLine().trim();
         mg.setMaker(maker);
+        while(true){
+        System.out.println("genres");
+        genres=sc.nextLine().trim();
+
+        gen.append(genres);
+        if(genres!=null){
+            gen.append(", ");
+            continue;
+        }else{
+            gen.deleteCharAt(gen.length()-1);
+            break;
+        }
+        }
+        mg.setGenres(gen.toString());
+
+
 
         System.out.println("releasedate");
         String releasedate=sc.nextLine().trim();
@@ -64,7 +86,7 @@ public class MyGamemanager {
 
     public int updateList() {
         int cnt =-1 ;
-        showList();
+        Gda.viewTitle();
         MyGame mg = new MyGame();
         System.out.print("Update title : ");
         String title=sc.nextLine();
@@ -112,7 +134,7 @@ public class MyGamemanager {
 
     public int removeList() {
         int cnt =-1 ;
-
+        Gda.viewTitle();
         MyGame mg = new MyGame();
         System.out.println("title");
         String title=sc.nextLine().trim();

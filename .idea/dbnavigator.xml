@@ -24,14 +24,27 @@
   </component>
   <component name="DBNavigator.Project.DatabaseConsoleManager">
     <connection id="df1ccacb-cfcb-46f3-91f6-efdf6818daec">
-      <console name="ichigo" type="STANDARD" schema="ICHIGO" session="Main"><![CDATA[select  * from MYGAME;
-select  * from WORTHFULL;
+      <console name="ichigo" type="STANDARD" schema="ICHIGO" session="Main"><![CDATA[select  no,title , price, maker,releasedate,rate from MYGAME;
+
+select count(*)+100 from MYGAME
+
+select  * from genre;
 select  * from TOP;
 
 
 
+select count(*) as cnt from MyGame where genre = '%Indie%';
 
-select * from MyGame where genre like '%Indie%'?]]></console>
+select * from MyGame where genre like '%Indie%'?
+
+
+
+SELECT distinct g.no,g.title ,g.price,g.maker,listagg(gg.genre,',')
+WITHIN GROUP (ORDER BY gg.genre) AS genres,g.releasedate,g.rate
+FROM MyGame g
+left JOIN GameGenre gg ON g.no = gg.Mygame_no
+GROUP BY g.no, g.title, g.price, g.maker, g.releasedate, g.rate
+ORDER BY g.no;]]></console>
     </connection>
   </component>
   <component name="DBNavigator.Project.DatabaseEditorStateManager">

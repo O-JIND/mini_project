@@ -1,18 +1,30 @@
 package com.itgroup.Bean;
 
 public class MyGame {
+    int no;
     String title;
     double price;
     String maker;
+    String genres;
     String releasedate;
     int rate;
     public MyGame(){}
-    public MyGame(String title, double price, String maker, String releasedate, int rate) {
+    public MyGame( int no, String title, double price, String maker,String genres, String releasedate, int rate) {
+        this.no = no;
         this.title = title;
         this.price = price;
         this.maker = maker;
+        this.genres=genres;
         this.releasedate = releasedate;
         this.rate = rate;
+    }
+
+    public int getNo() {
+        return no;
+    }
+
+    public void setNo(int no) {
+        this.no = no;
     }
 
     public String getTitle() {
@@ -55,12 +67,21 @@ public class MyGame {
         this.rate = rate;
     }
 
+    public String getGenres() {
+        return genres;
+    }
+
+    public void setGenres(String genres) {
+        this.genres = genres;
+    }
+
     @Override
     public String toString() {
         return
                 "title = " + title  +
                 ", price = " + price +
                 ", maker = " + maker +
+                ", genres = " +genres+
                 ", releasedate = " + releasedate +
                 ", rate = " + rate ;
     }
