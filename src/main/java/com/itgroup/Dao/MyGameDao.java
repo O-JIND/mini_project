@@ -296,7 +296,7 @@ public class MyGameDao extends SuperDao{
             ml.setTitle(rs.getString("title"));
             ml.setPrice(rs.getDouble("price"));
             ml.setMaker(rs.getString("maker"));
-            ml.setGenres(rs.getString("genre"));
+            ml.setGenres(rs.getString("genres"));
             ml.setreleasedate(rs.getString("releasedate"));
             ml.setRate(rs.getInt("rate"));
         } catch (SQLException e) {
