@@ -22,13 +22,13 @@ public class MyGamemanager {
         String genres=null;
         StringBuilder gen = new StringBuilder();
         MyGame mg = new MyGame();
-        List<MyGame>viewer =Gda.viewTitle();
+        List<MyGame>viewer =Gda.viewTitle();//전체 목록
         viewone(viewer);
         int no = Gda.countList();
         mg.setNo(no);
         System.out.println("title");
         String title=sc.nextLine().trim();
-        if (!Gda.SamVer(title)) {
+        if (!Gda.SamVer(title)) {//SamVer: id 중복 확인 true;
             mg.setTitle(title);
         }else {
             System.out.println("중복되는 게임입니다.");
@@ -44,17 +44,17 @@ public class MyGamemanager {
         String maker=sc.nextLine().trim();
         mg.setMaker(maker);
 
-        while(true){
+        while(true){//"Object ,Object  ,Object " 형태로 전달
         System.out.println("genres");
         genres=sc.nextLine().trim();
         gen.append(genres);
         gen.append(", ");
         if(genres.isEmpty()){
-            gen.deleteCharAt(gen.length()-1);
+            gen.deleteCharAt(gen.length()-1);//마지막 추가된 , 제거
             break;
         }
         }
-        mg.setGenres(gen.toString());
+        mg.setGenres(gen.toString());//StringBuilder 문자열로 변환 후 전달
 
         System.out.println("releasedate");
         String releasedate=sc.nextLine().trim();
@@ -81,22 +81,30 @@ public class MyGamemanager {
 
     public int updateList() {
         int cnt =-1 ;
-        List<MyGame>viewer =Gda.viewTitle();
+        List<MyGame>viewer =Gda.viewTitle();//전체 목록
         viewone(viewer);
         MyGame mg = new MyGame();
         String genres=null;
         StringBuilder gen = new StringBuilder();
-        System.out.print("Update title : ");
+
+        System.out.println("No : ");
+        int num = sc.nextInt();
         int no = Gda.countList();
-        mg.setNo(no);
-        String title=sc.nextLine();
-        if (Gda.SamVer(title)) {
-            mg.setTitle(title);
+
+        if(0<num && num<no) {
+            System.out.print("Update title : ");
+            mg.setNo(num);
+            String title = sc.nextLine();
+            if (Gda.SamVer(title)) {
+                mg.setTitle(title);
+            } else {
+                System.out.println("목록에 없는 게임입니다.");
+                return 0;
+            }
         }else {
-            System.out.println("목록에 없는 게임입니다.");
+            System.out.println("no를 제대로 입력하시오.");
             return 0;
         }
-
 
         System.out.print ("price (변경 없으면 0) : ");
         double price=sc.nextDouble();
@@ -130,13 +138,13 @@ public class MyGamemanager {
 
         cnt = Gda.updateList(mg);
 
-        if(cnt==1){
-            System.out.println("변경 성공!");
+        if(cnt==-1){
+            System.out.println("실패");
         }else if(cnt ==0){
             System.out.println("문제 발생");
         }
         else {
-            System.out.println("실패");
+            System.out.println("변경 성공!");
         }
         return cnt;
 
@@ -149,14 +157,16 @@ public class MyGamemanager {
         Gda.viewTitle();
         MyGame mg = new MyGame();
         System.out.println("title");
-        String title=sc.nextLine().trim();
+
+        String title=sc.nextLine();
+        int no = Gda.getNotoTitle(title);
         if (Gda.SamVer(title)) {
-            mg.setTitle(title);
+            cnt = Gda.removeList(no);
         }else {
             System.out.println("존재하지 않는 게임입니다.");
             return 0;
         }
-        cnt = Gda.removeList(title);
+
         if(cnt>0){
             System.out.println("삭제 성공");
         }else {
@@ -170,6 +180,7 @@ public class MyGamemanager {
     public List<MyGame> SortbyMaker() {
         String mk = sc.next();
         List<MyGame> makerlist=Gda.SortbyMaker(mk);
+        System.out.println(makerlist);
         Gda.showList(makerlist);
         return makerlist;
     }

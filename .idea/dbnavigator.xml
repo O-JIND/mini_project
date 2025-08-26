@@ -43,6 +43,7 @@ SELECT distinct g.no,g.title ,g.price,g.maker,listagg(gg.genre,',')
 WITHIN GROUP (ORDER BY gg.genre) AS genres,g.releasedate,g.rate
 FROM MyGame g
 left JOIN GameGenre gg ON g.no = gg.Mygame_no
+where upper(gg.GENRE)  like upper('%rpg%')
 GROUP BY g.no, g.title, g.price, g.maker, g.releasedate, g.rate
 ORDER BY g.no;
 
@@ -54,8 +55,18 @@ GROUP BY g.no, g.title, g.price, g.maker, g.releasedate, g.rate
 ORDER BY g.no;
 
 
+SELECT distinct g.no,g.title ,g.price,g.maker,listagg(gg.genre,',')
+WITHIN GROUP (ORDER BY gg.genre) AS genres,g.releasedate,g.rate 
+FROM MyGame g
+left JOIN GameGenre gg ON g.no = gg.Mygame_no
+where gg.GENRE = 'Action'
+GROUP BY g.no, g.title, g.price, g.maker, g.releasedate, g.rate
+ORDER BY g.no;
 
-select * from GameGenre ;]]></console>
+select * from GameGenre where MYGAME_NO = 162;
+
+select *from MyGame where maker like '%From%';
+select count(*) as cnt from GameGenre where genre='Action';]]></console>
     </connection>
   </component>
   <component name="DBNavigator.Project.DatabaseEditorStateManager">

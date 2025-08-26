@@ -78,11 +78,11 @@ public class MyGame {
     @Override
     public String toString() {
         return
-                "title = " + title  +
-                ", price = " + price +
-                ", maker = " + maker +
-                ", genres = " +genres+
-                ", releasedate = " + releasedate +
-                ", rate = " + rate ;
+                "title : " + title  +"||"+
+                ", price :" + price +"||"+
+                ", maker : " + maker +"||"+
+                ", genres : " +genres+"||"+
+                ", releasedate : " + releasedate +"||"+
+                ", rate : " + rate ;
     }
 }

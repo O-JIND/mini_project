@@ -40,19 +40,19 @@ public class Main {
                     magame.addList();//
                     break;
                 case 3:
-                    magame.updateList();
+                    magame.updateList();//
                     break;
                 case 4:
-                    magame.removeList();
+                    magame.removeList();//
                     break;
                 case 5:
-                    magame.SortbyMaker();
+                    magame.SortbyMaker();//
                     break;
                 case 6:
-                    magame.genreList();
+                    magame.genreList();//
                     break;
                 case 7:
-                    magame.selectAll();
+                    magame.selectAll();//
                     break;
                 case 0:
                     magame.end();//
