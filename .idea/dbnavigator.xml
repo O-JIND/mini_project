@@ -61,21 +61,22 @@ FROM MyGame g
 left JOIN GameGenre gg ON g.no = gg.Mygame_no
 where gg.GENRE = 'Action'
 GROUP BY g.no, g.title, g.price, g.maker, g.releasedate, g.rate
-ORDER BY g.no;
+ORDER BY g.releasedate desc ;
 
 select * from GameGenre where MYGAME_NO = 162;
 
 select *from MyGame where maker like '%From%';
-select count(*) as cnt from GameGenre where genre='Action';]]></console>
+select count(*) as cnt from GameGenre where genre='Action';
+
+SELECT TO_CHAR(releasedate, 'YYYY-MM-DD') AS releasedate
+FROM MyGame;]]></console>
     </connection>
   </component>
   <component name="DBNavigator.Project.DatabaseEditorStateManager">
     <last-used-providers />
   </component>
   <component name="DBNavigator.Project.DatabaseFileManager">
-    <open-files>
-      <object connection-id="df1ccacb-cfcb-46f3-91f6-efdf6818daec" object-ref="consoles/ichigo" />
-    </open-files>
+    <open-files />
   </component>
   <component name="DBNavigator.Project.DatabaseSessionManager">
     <connection id="df1ccacb-cfcb-46f3-91f6-efdf6818daec" />

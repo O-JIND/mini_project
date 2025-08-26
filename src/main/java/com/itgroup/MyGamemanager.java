@@ -11,8 +11,9 @@ public class MyGamemanager {
     }
 
     public List<MyGame> showList() {
-        List<MyGame> malist = Gda.showList();
-        Gda.showList(malist);
+        String sort = "g.no";
+        List<MyGame> malist = Gda.showList(sort);
+        Gda.show(malist);
         return malist;
     }
 
@@ -26,7 +27,7 @@ public class MyGamemanager {
         viewone(viewer);
         int no = Gda.countList();
         mg.setNo(no);
-        System.out.println("title");
+        System.out.print("title : ");
         String title=sc.nextLine().trim();
         if (!Gda.SamVer(title)) {//SamVer: id 중복 확인 true;
             mg.setTitle(title);
@@ -35,17 +36,17 @@ public class MyGamemanager {
             return 0;
         }
 
-        System.out.println("price");
+        System.out.print("input price : ");
         double price=sc.nextDouble();
         mg.setPrice(price);
         sc.nextLine();
 
-        System.out.println("maker");
+        System.out.print("input maker : ");
         String maker=sc.nextLine().trim();
         mg.setMaker(maker);
 
         while(true){//"Object ,Object  ,Object " 형태로 전달
-        System.out.println("genres");
+        System.out.print("input genres : (No one else, press enter)");
         genres=sc.nextLine().trim();
         gen.append(genres);
         gen.append(", ");
@@ -56,11 +57,11 @@ public class MyGamemanager {
         }
         mg.setGenres(gen.toString());//StringBuilder 문자열로 변환 후 전달
 
-        System.out.println("releasedate");
+        System.out.print("input  releasedate : ");
         String releasedate=sc.nextLine().trim();
         mg.setreleasedate(releasedate);
 
-        System.out.println("rate");
+        System.out.print("input rate : ");
         int rate=sc.nextInt();
         mg.setRate(rate);
         sc.nextLine();
@@ -87,7 +88,7 @@ public class MyGamemanager {
         String genres=null;
         StringBuilder gen = new StringBuilder();
 
-        System.out.println("No : ");
+        System.out.print("Update No : ");
         int num = sc.nextInt();
         int no = Gda.countList();
 
@@ -98,25 +99,25 @@ public class MyGamemanager {
             if (Gda.SamVer(title)) {
                 mg.setTitle(title);
             } else {
-                System.out.println("목록에 없는 게임입니다.");
+                System.out.print("No one in List.");
                 return 0;
             }
         }else {
-            System.out.println("no를 제대로 입력하시오.");
+            System.out.print("Try again.");
             return 0;
         }
 
-        System.out.print ("price (변경 없으면 0) : ");
+        System.out.print ("price (No update, press 0) : ");
         double price=sc.nextDouble();
         mg.setPrice(price);
         sc.nextLine();
 
-        System.out.print("maker (변경 없으면 enter) : ");
+        System.out.print("maker (No update, press  enter) : ");
         String maker=sc.nextLine().trim();
         mg.setMaker(maker);
 
         while(true){
-            System.out.println("genres (변경 없으면 enter)");
+            System.out.print("genres (No update, press enter)");
             genres=sc.nextLine().trim();
             gen.append(genres);
             gen.append(", ");
@@ -127,11 +128,11 @@ public class MyGamemanager {
         }
         mg.setGenres(gen.toString());
 
-        System.out.print("releasedate (변경 없으면 enter) : ");
+        System.out.print("releasedate (No update, press enter) : ");
         String releasedate=sc.nextLine().trim();
         mg.setreleasedate(releasedate);
 
-        System.out.print("rate (변경 없으면 0) : ");
+        System.out.print("rate (No update, press 0) : ");
         int rate=sc.nextInt();
         mg.setRate(rate);
         sc.nextLine();
@@ -155,8 +156,7 @@ public class MyGamemanager {
     public int removeList() {
         int cnt =-1 ;
         Gda.viewTitle();
-        MyGame mg = new MyGame();
-        System.out.println("title");
+        System.out.print("Remove title : ");
 
         String title=sc.nextLine();
         int no = Gda.getNotoTitle(title);
@@ -178,21 +178,39 @@ public class MyGamemanager {
 
 
     public List<MyGame> SortbyMaker() {
+        System.out.print("Enter Maker : ");
         String mk = sc.next();
+        sc.nextLine();
         List<MyGame> makerlist=Gda.SortbyMaker(mk);
-        System.out.println(makerlist);
-        Gda.showList(makerlist);
+        Gda.show(makerlist);
         return makerlist;
     }
 
+
+    public List<MyGame> SortbyDate() {
+        String sort = "date";
+        List<MyGame> malist = Gda.showList(sort);
+        Gda.show(malist);
+        return malist;
+    }
+
+    public List<MyGame> SortbyScore() {
+        String rate = "score";
+        List<MyGame> malist = Gda.showList(rate);
+        Gda.show(malist);
+        return malist;
+    }
+
     public List<MyGame> genreList() {
+        System.out.print("Enter Genre : ");
         String search = sc.next();
+        sc.nextLine();
         List<MyGame> genre =null;
         if(Gda.VerGenre(search)){
             genre= Gda.genreList(search);
-            Gda.showList(genre);
+            Gda.show(genre);
         }else {
-            System.out.println("존재 하지 않는 장르입니다.");
+            System.out.println( search +" doesn't  exist.");
         }
 
 
@@ -202,21 +220,22 @@ public class MyGamemanager {
     public void end() {
         sc=new Scanner(System.in);
        try {
-           System.out.println("종료? 1 Yes / 2 No");
+           System.out.println("Exit ?  1 Yes / 2 No");
             int a = sc.nextInt();
 
             if (a==1) {
+                System.out.println("See you");
                 System.exit(0);
             }
         } catch (Exception e) {
-           System.out.println("다시 입력하세요.");
+           System.out.println("Try again.");
        }
     }
 
 
     public int selectAll() {
         int cntall = Gda.selectAll();
-        String msg = "총 게임 수 : "+ cntall;
+        String msg = "Total games : "+ cntall;
         System.out.println(msg);
 
         return cntall;

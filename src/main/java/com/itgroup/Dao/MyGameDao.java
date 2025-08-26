@@ -13,15 +13,29 @@ public class MyGameDao extends SuperDao{
     public MyGameDao() {super();}
 
 
-    public List<MyGame> showList() {
+    public List<MyGame> showList(String sort) {
+        String order;
         List<MyGame> mylist=new ArrayList<>();
+        switch (sort){
+            case "date":
+                order ="rel_dt  desc";
+                break;
+            case "score":
+                order ="g.rate desc";
+                break;
+            default:
+                order = "g.no";
+        }
         String sql = "SELECT distinct g.no,g.title ,g.price,g.maker,listagg(gg.genre,',')" ;
-        sql+= "WITHIN GROUP (ORDER BY gg.genre) AS genres,g.releasedate,g.rate " ;
-        sql+= "FROM MyGame g" ;
-        sql+=" left JOIN GameGenre gg ON g.no = gg.Mygame_no" ;
-        sql+=" GROUP BY g.no, g.title, g.price, g.maker, g.releasedate, g.rate" ;
-        sql+=" ORDER BY g.no";
+        sql+= " WITHIN GROUP (ORDER BY gg.genre) AS genres," +
+                "To_char(g.releasedate,'YYYY-MM-DD') as Released_date,g.rate, g.releasedate AS rel_dt " ;
+        sql+="FROM MyGame g " ;
+        sql+="left JOIN GameGenre gg ON g.no = gg.MyGame_no " ;
+        sql+="GROUP BY g.no, g.title, g.price, g.maker, g.releasedate, g.rate " ;
+        sql+="ORDER BY " + order ;
+        //Distinct 때문에 오류 || rel_dt => 정렬용 데이터 추가
         try{
+
             Connection conn = super.getConnection();
             PreparedStatement pstmt = conn.prepareStatement(sql);
             ResultSet rs = pstmt.executeQuery();
@@ -39,7 +53,7 @@ public class MyGameDao extends SuperDao{
     public int addList(MyGame mg) {
         int add =-1;
         Connection conn = null;
-        String sql = "insert into MyGame(no,title,price,maker,releasedate,rate)" ;
+        String sql = "insert into MyGame(no,title,price,maker,To_char(g.releasedate,'YYYY-MM-DD') as Released_date,rate)" ;
         sql+="values (?,?,?,?,?,?)";
         String sql1 = "insert into gamegenre";
         sql1+=" values (?,?)";
@@ -74,11 +88,6 @@ public class MyGameDao extends SuperDao{
                 pstmt1.setString(2,genres);
                 add += pstmt1.executeUpdate();
             }
-
-
-
-
-
             conn.commit();
         }catch (SQLException e) {
             try{
@@ -101,13 +110,12 @@ public class MyGameDao extends SuperDao{
 
     public int updateList(MyGame mg) {
         Map<Object,Object> mapgame = null;
-        List<String> Upgenre = null;
         Connection conn =null;
         int update =-1;
 
 
         StringBuilder sql =new StringBuilder("Update MyGame set ");
-        String sql1 = "Update GameGenre set genre = ? where MyGame_no = ?";
+        String sql1 = "Update GameGenre set genre = ? where UPPER(MyGame_no) = UPPER(?)";
 
         try{
             mapgame = new HashMap<>();
@@ -128,7 +136,8 @@ public class MyGameDao extends SuperDao{
             if(!mg.getreleasedate().isEmpty()){   releasedate = mg.getreleasedate();
             mapgame.put("releasedate",releasedate);}
 
-            if(mg.getRate()!=0){rate = mg.getRate();mapgame.put("rate",rate);    }
+            if(mg.getRate()!=0){rate = mg.getRate();
+            mapgame.put("rate",rate);    }
 
             int i = 0;//genre X
             for (Object s: mapgame.keySet()){
@@ -193,8 +202,8 @@ public class MyGameDao extends SuperDao{
     public int removeList(int no) {
         int remove =-1;
         Connection conn = null;
-        String sql = "delete from GameGenre where MyGame_no  = ?";
-        String sql1 = "delete from MyGame where no = ?";
+        String sql = "delete from GameGenre where UPPER(MyGame_no) =UPPER(?)";
+        String sql1 = "delete from MyGame where UPPER(no) = UPPER(?)";
         try{
             conn = super.getConnection();
             PreparedStatement pstmt = conn.prepareStatement(sql);
@@ -221,10 +230,10 @@ public class MyGameDao extends SuperDao{
         List<MyGame> mylist =new ArrayList<>();;
         Connection conn = null;
         String sql = "SELECT distinct g.no,g.title ,g.price,g.maker,listagg(gg.genre,',')" ;
-        sql+= "WITHIN GROUP (ORDER BY gg.genre) AS genres,g.releasedate,g.rate" ;
+        sql+= " WITHIN GROUP (ORDER BY gg.genre) AS genres,g.To_char(g.releasedate,'YYYY-MM-DD') as Released_date,g.rate" ;
         sql+= " FROM MyGame g" ;
         sql+=" left JOIN GameGenre gg ON g.no = gg.MyGame_no" ;
-        sql+= " where maker like ?" ;
+        sql+= " where UPPER(maker) like UPPER(?)" ;
         sql+=" GROUP BY g.no, g.title, g.price, g.maker, g.releasedate, g.rate" ;
         sql+=" ORDER BY g.no";
         try{
@@ -260,17 +269,17 @@ public class MyGameDao extends SuperDao{
     public List<MyGame> genreList(String search) {
         List<MyGame>genre=new ArrayList<>();
         String sql = "SELECT distinct g.no,g.title ,g.price,g.maker,listagg(gg.genre,',')" ;
-        sql+= "WITHIN GROUP (ORDER BY gg.genre) AS genres,g.releasedate,g.rate" ;
+        sql+= " WITHIN GROUP (ORDER BY gg.genre) AS genres,g.To_char(g.releasedate,'YYYY-MM-DD') as Released_date,g.rate" ;
         sql+= " FROM MyGame g" ;
         sql+=" left JOIN GameGenre gg ON g.no = gg.MyGame_no" ;
-        sql+= " where gg.genre  like ?" ;
+        sql+= " where UPPER(gg.genre) like UPPER(?)" ;
         sql+=" GROUP BY g.no, g.title, g.price, g.maker, g.releasedate, g.rate" ;
         sql+=" ORDER BY g.no";
         try{
             Connection conn = super.getConnection();
             PreparedStatement pstmt = conn.prepareStatement(sql);
             String put ="%"+search+"%";
-            pstmt.setString(1,search);
+            pstmt.setString(1,put);
             ResultSet rs = pstmt.executeQuery();
             while (rs.next()){
                 MyGame bean = makeList(rs);
@@ -287,7 +296,7 @@ public class MyGameDao extends SuperDao{
     }
 
     public Boolean SamVer(String id){//verify title in MyGame
-        String sql = "select count(*) as cnt from MyGame where title=?";
+        String sql = "select count(*) as cnt from MyGame where UPPER(title)=UPPER(?)";
 
         try{
             Connection conn = super.getConnection();
@@ -309,7 +318,7 @@ public class MyGameDao extends SuperDao{
 
     }
     public Boolean VerGenre(String genre){//verify genre in MyGame
-        String sql = "select count(*) as cnt from GameGenre where genre like ?";
+        String sql = "select count(*) as cnt from GameGenre where UPPER(genre) like UPPER(?)";
         int a=-1;
         try{
             Connection conn = super.getConnection();
@@ -360,7 +369,7 @@ public class MyGameDao extends SuperDao{
             ml.setPrice(rs.getDouble("price"));
             ml.setMaker(rs.getString("maker"));
             ml.setGenres(rs.getString("genres"));
-            ml.setreleasedate(rs.getString("releasedate"));
+            ml.setreleasedate(rs.getString("Released_date"));
             ml.setRate(rs.getInt("rate"));
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -368,7 +377,7 @@ public class MyGameDao extends SuperDao{
         return ml;
     }
 
-    public void showList(List<MyGame> list){
+    public void show(List<MyGame> list){
         for(MyGame s : list){
             int no = s.getNo();
             String title = s.getTitle();
@@ -377,16 +386,10 @@ public class MyGameDao extends SuperDao{
             String genres = s.getGenres();
             String releasedate = s.getreleasedate();
             int rate = s.getRate();
-
-
-            String msg ="NO : " + no + "||";
-            msg +=  "title :  "+title + "||";
-            msg +=" price : "+price+ "||";
-            msg +=" maker : "+maker+ "||";
-            msg +=" genres : "+genres+ "||";
-            msg +=" releasedate : "+releasedate+ "||";
-            msg +=" rate : "+rate+ "||";
-            System.out.println(msg);
+            String macut=fixLength(maker,30);
+            System.out.printf("%-5d %-45s %-8.2f %-30s %-30s %-20s %-5d%n",
+                    no,title,price,macut,genres,releasedate,rate
+            );
 
         }
     }
@@ -432,7 +435,7 @@ public class MyGameDao extends SuperDao{
         return count;
     }
  public Boolean InGenre(int no , String gnre){
-        String sql = "select count(*) as cnt from GameGenre where MyGame_no=? and genre=?";
+        String sql = "select count(*) as cnt from GameGenre where UPPER(MyGame_no)=UPPER(?) and UPPER(genre)=UPPER(?)";
          int count = -1;
         try{
              Connection conn = super.getConnection();
@@ -457,7 +460,7 @@ public class MyGameDao extends SuperDao{
         return false;
  }
 public int getNotoTitle(String name){
-        String sql = "select no,title from MyGame where title = ? ";
+        String sql = "select no,title from MyGame where UPPER(title) = UPPER(?) ";
         int getnum = 0;
         try{
             Connection conn = super.getConnection();
@@ -478,6 +481,12 @@ public int getNotoTitle(String name){
         }
 
         return getnum;
+}
+
+public String fixLength(String s, int len){
+        if(s==null){return "" ;}
+
+        return (s.length()>len)?s.substring(0,len):String.format("%-"+len+"s",s);
 }
 
 

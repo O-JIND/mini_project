@@ -27,6 +27,8 @@ public class Main {
                     5 : 제작사 별 목록
                     6 : 장르 별 게임 검색
                     7 : 모든 게임 개수
+                    8 : 출시일 순으로 보기
+                    9 : 메타크리틱순으로 보기
                     """);
 
 
@@ -54,6 +56,15 @@ public class Main {
                 case 7:
                     magame.selectAll();//
                     break;
+                case 8:
+                    magame.SortbyDate();//
+                    break;
+                case 9:
+                    magame.SortbyScore();//
+                    break;
+
+
+
                 case 0:
                     magame.end();//
                     break;
