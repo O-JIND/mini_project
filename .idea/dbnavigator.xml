@@ -35,7 +35,7 @@ select  * from TOP;
 
 select count(*) as cnt from MyGame where genre = '%Indie%';
 
-select * from MyGame where genre like '%Indie%'?
+select * from MyGame where maker like '%Valve%'?
 
 
 
@@ -69,7 +69,49 @@ select *from MyGame where maker like '%From%';
 select count(*) as cnt from GameGenre where genre='Action';
 
 SELECT TO_CHAR(releasedate, 'YYYY-MM-DD') AS releasedate
-FROM MyGame;]]></console>
+FROM MyGame;
+
+
+
+delete from GameGenre where MyGame_no =163;]]></console>
+      <console name="ichigo 1" type="STANDARD" schema="ICHIGO" session="Main"><![CDATA[create table MyGame (
+            no number primary key,
+            title varchar2(100) unique,
+            price number(8,2) not null,
+            maker varchar2(100) not null,
+            releasedate date ,
+            genre varchar2(30),
+            rate number
+            );
+
+
+create table gamegenre (
+            Mygame_no number not null,
+            genre varchar2(50) not null,
+            constraint fk_MyGame FOREIGN KEY(Mygame_no) REFERENCES MyGame(no)
+);
+select Max(no),count(*)+100 as cnt from MYGAME;
+select * from MYGAME;
+
+
+
+SELECT distinct g.no,g.title ,g.price,g.maker,listagg(gg.genre,',')
+WITHIN GROUP (ORDER BY gg.genre) AS genres,
+To_char(g.releasedate,'YYYY-MM-DD') as Released_date,g.rate
+FROM MyGame g
+left JOIN GameGenre gg ON g.no = gg.MyGame_no
+where UPPER(maker) like UPPER('%from%')
+GROUP BY g.no, g.title, g.price, g.maker, g.releasedate, g.rate
+ORDER BY g.no;
+
+
+
+
+select  * from GAMEGENRE where MyGame_no =163;
+
+
+delete from GameGenre where MyGame_no =163;
+rollback ;]]></console>
     </connection>
   </component>
   <component name="DBNavigator.Project.DatabaseEditorStateManager">
@@ -90,6 +132,9 @@ FROM MyGame;]]></console>
   <component name="DBNavigator.Project.ObjectQuickFilterManager">
     <last-used-operator value="EQUAL" />
     <filters />
+  </component>
+  <component name="DBNavigator.Project.ScriptExecutionManager" clear-outputs="true">
+    <recently-used-interfaces />
   </component>
   <component name="DBNavigator.Project.Settings">
     <connections>
@@ -140,7 +185,7 @@ FROM MyGame;]]></console>
           <charset value="UTF-8" />
           <session-management value="true" />
           <ddl-file-binding value="true" />
-          <database-logging value="true" />
+          <database-logging value="false" />
           <connect-automatically value="true" />
           <restore-workspace value="true" />
           <restore-workspace-deep value="false" />

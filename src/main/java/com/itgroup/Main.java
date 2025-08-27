@@ -2,10 +2,8 @@ package com.itgroup;
 
 import com.itgroup.Dao.MyGameDao;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.Statement;
+import java.sql.*;
+import java.util.InputMismatchException;
 import java.util.Scanner;
 
 // CREATE USER oraman IDENTIFIED BY oracle DEFAULT TABLESPACE users TEMPORARY TABLESPACE temp;
@@ -13,10 +11,10 @@ import java.util.Scanner;
 //ALTER USER oraman ACCOUNT UNLOCK;
 
 public class Main {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws SQLException {
         Scanner sc = new Scanner(System.in);
         MyGamemanager magame = new MyGamemanager(new MyGameDao());
-
+        int a =-1;
         while(true) {
             System.out.println("""
                     0 : 종료
@@ -30,9 +28,8 @@ public class Main {
                     8 : 출시일 순으로 보기
                     9 : 메타크리틱순으로 보기
                     """);
-
-
-            int a = sc.nextInt();
+            try{
+            a = sc.nextInt();
             sc.nextLine();
             switch (a) {
                 case 1:
@@ -62,21 +59,19 @@ public class Main {
                 case 9:
                     magame.SortbyScore();//
                     break;
-
-
-
                 case 0:
                     magame.end();//
-                    break;
+                    break;}
+
+            }catch (InputMismatchException e) {
+                System.out.println("Please enter Integer.");
+                sc.nextLine(); // 잘못된 토큰/개행 비우기
+                continue;
+            }
+            if (a<0||a>9){
+                System.out.println("Please enter Integer in range");
+                continue;
             }
         }
-
-
-
-
-
-
     }
-
-
 }

@@ -34,11 +34,10 @@ public class MyGameDao extends SuperDao{
         sql+="GROUP BY g.no, g.title, g.price, g.maker, g.releasedate, g.rate " ;
         sql+="ORDER BY " + order ;
         //Distinct 때문에 오류 || rel_dt => 정렬용 데이터 추가
-        try{
-
-            Connection conn = super.getConnection();
+        try(Connection conn = super.getConnection();
             PreparedStatement pstmt = conn.prepareStatement(sql);
-            ResultSet rs = pstmt.executeQuery();
+            ResultSet rs = pstmt.executeQuery();)
+        {
             while(rs.next()){
                 MyGame bean =makeList(rs);
                 mylist.add(bean);
@@ -53,14 +52,17 @@ public class MyGameDao extends SuperDao{
     public int addList(MyGame mg) {
         int add =-1;
         Connection conn = null;
-        String sql = "insert into MyGame(no,title,price,maker,To_char(g.releasedate,'YYYY-MM-DD') as Released_date,rate)" ;
+        PreparedStatement pstmt = null;
+        PreparedStatement pstmt1= null;
+        String sql = "insert into MyGame(no,title,price,maker,releasedate,rate)" ;
         sql+="values (?,?,?,?,?,?)";
         String sql1 = "insert into gamegenre";
         sql1+=" values (?,?)";
         try{
             conn = super.getConnection();
-            PreparedStatement pstmt = conn.prepareStatement(sql);
-            PreparedStatement pstmt1 = conn.prepareStatement(sql1);
+            conn.setAutoCommit(false);
+            pstmt = conn.prepareStatement(sql);
+            pstmt1 = conn.prepareStatement(sql1);
             int num=mg.getNo();
             pstmt.setInt(1,num);
             String title=mg.getTitle();
@@ -81,7 +83,7 @@ public class MyGameDao extends SuperDao{
             if(genres.contains(",")){
             for(String s: genres.split(",")) {
                 pstmt1.setInt(1,no);
-                pstmt1.setString(2,s.trim());
+                pstmt1.setString(2,s);
                 add += pstmt1.executeUpdate();
             }
             }else{
@@ -89,21 +91,23 @@ public class MyGameDao extends SuperDao{
                 add += pstmt1.executeUpdate();
             }
             conn.commit();
-        }catch (SQLException e) {
-            try{
-                conn.rollback();
-
-            } catch (SQLException ex) {
-                throw new RuntimeException(ex);
-            }
-        }finally {
-            try {
-                if(conn!=null){
-                    conn.close();
+        } catch (SQLException e) {
+            if(conn != null) {
+                try {
+                    conn.rollback();
+                }catch (SQLException ex){
+                    ex.printStackTrace();
                 }
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
             }
+            e.printStackTrace();
+        }
+        finally {
+            try {if(pstmt1!=null){pstmt1.close();}}
+            catch (SQLException e) {e.printStackTrace();}
+            try {if(pstmt!=null){pstmt.close();}}
+            catch (SQLException e) {e.printStackTrace();}
+            try {if(conn!=null){conn.close();}}
+            catch (SQLException e) {e.printStackTrace();}
         }
         return add;
     }
@@ -111,90 +115,106 @@ public class MyGameDao extends SuperDao{
     public int updateList(MyGame mg) {
         Map<Object,Object> mapgame = null;
         Connection conn =null;
-        int update =-1;
-
+        PreparedStatement pstmt=null,clr=null,pstmt1=null;
+        int rt =0, update =-1;
+        String maker=null,releasedate=null,genre=null;
+        double price =0;
 
         StringBuilder sql =new StringBuilder("Update MyGame set ");
-        String sql1 = "Update GameGenre set genre = ? where UPPER(MyGame_no) = UPPER(?)";
+        String genreclr = "delete from GameGenre where MyGame_no =?";
+        String sql1 = "insert into GameGenre(MyGame_no,genre) values(?,?)";
 
         try{
             mapgame = new HashMap<>();
             conn = super.getConnection();
-            String maker=null,releasedate=null,genre=null;
-            String title = mg.getTitle();
-            int rate =0,no=mg.getNo();
-            double price =0;
-
-            mapgame.put("no",no );
-            mapgame.put("title",title);
+            conn.setAutoCommit(false);
+            int no=mg.getNo();
             if(mg.getPrice()!=0){  price= mg.getPrice();
                 mapgame.put("price",price);}
 
-            if(!mg.getMaker().isEmpty()){  maker = mg.getMaker();
+            if(!mg.getMaker().isEmpty()&&mg.getMaker()!=null){  maker = mg.getMaker();
             mapgame.put("maker",maker);}
 
-            if(!mg.getreleasedate().isEmpty()){   releasedate = mg.getreleasedate();
+            if(!mg.getreleasedate().isEmpty()&&mg.getreleasedate()!= null){   releasedate = mg.getreleasedate();
             mapgame.put("releasedate",releasedate);}
 
-            if(mg.getRate()!=0){rate = mg.getRate();
-            mapgame.put("rate",rate);    }
+            if(mg.getRate()!=0){rt = mg.getRate();
+            mapgame.put("rate",rt);    }
 
-            int i = 0;//genre X
-            for (Object s: mapgame.keySet()){
-                String plus = s + "=?";
-                sql.append(plus);
-                if(i< mapgame.size()-1){
-                    String comma = " , ";
-                    sql.append(comma);
+    // =============================================================================
+
+            int i = 0;
+            if(!mapgame.isEmpty()) {
+                //genre X price maker date rate sql
+                for (Object s : mapgame.keySet()) {
+                    String plus = s + "=?";
+                    sql.append(plus);
+                    if (i < mapgame.size() - 1) {
+                        String comma = " , ";
+                        sql.append(comma);
+                    }
+                    i++;
                 }
-                i++;
-            } sql.append(" where no = ? ");
+                sql.append(" where no = ? ");
 
-            PreparedStatement pstmt = conn.prepareStatement(sql.toString());
+                pstmt = conn.prepareStatement(sql.toString());
 
-            int j = 1;
-            for (Object s: mapgame.values()){
-                pstmt.setObject(j++,s);
-            }pstmt.setString(j,title);
-            update = pstmt.executeUpdate();
-            conn.commit();
-
-            PreparedStatement pstmt1 = conn.prepareStatement(sql1);
+                int j = 1;
+                for (Object s : mapgame.values()) {
+                    pstmt.setObject(j++, s);
+                }
+                pstmt.setInt(j, no);
+                update = pstmt.executeUpdate();
+            }
 
 
-            genre=mg.getGenres();
+            genre = mg.getGenres();
             if(!genre.isEmpty()) {
-                if(InGenre(no,genre)){
+                clr = conn.prepareStatement(genreclr);
+                pstmt1 = conn.prepareStatement(sql1);
+                clr.setInt(1, no);
+
+                if (update < 0) {
+                    update = clr.executeUpdate();
+                } else {
+                    update += clr.executeUpdate();
+                }
+
+
                 if (genre.contains(",")) {
                     for (String s : genre.split(",")) {
-                        pstmt1.setString(1, s.trim());
-                        pstmt1.setInt(2, no);
+                        pstmt1.setInt(1, no);
+                        pstmt1.setString(2, s.trim());
                         update += pstmt1.executeUpdate();
                     }
                 } else {
-                    pstmt1.setString(1, genre);
-                    pstmt1.setInt(2, no);
+                    pstmt1.setInt(1, no);
+                    pstmt1.setString(2, genre);
                     update += pstmt1.executeUpdate();
-                }}else {
-                    System.out.println("변경할 대상이 없습니다.");
                 }
             }
-        }catch (SQLException e) {
-            try{
-                conn.rollback();
 
-            } catch (SQLException ex) {
-                throw new RuntimeException(ex);
-            }
-        }finally {
-            try {
-                if(conn!=null){
-                    conn.close();
-
+            conn.commit();
+        } catch (SQLException e) {
+            if(conn != null) {
+                try {
+                    conn.rollback();
+                }catch (SQLException ex){
+                    ex.printStackTrace();
                 }
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
             }
+            e.printStackTrace();
+        }
+        finally {
+            try {if(pstmt1!=null){pstmt1.close();}}
+            catch (SQLException e) {e.printStackTrace();}
+            try {if(clr!=null){clr.close();}}
+            catch (SQLException e) {e.printStackTrace();}
+            try {if(pstmt!=null){pstmt.close();}}
+            catch (SQLException e) {e.printStackTrace();}
+            try {if(conn!=null){conn.close();}}
+            catch (SQLException e) {e.printStackTrace();}
+
         }
         return update;
     }
@@ -202,65 +222,62 @@ public class MyGameDao extends SuperDao{
     public int removeList(int no) {
         int remove =-1;
         Connection conn = null;
+        PreparedStatement pstmt =null , pstmt1=null;
         String sql = "delete from GameGenre where UPPER(MyGame_no) =UPPER(?)";
         String sql1 = "delete from MyGame where UPPER(no) = UPPER(?)";
         try{
             conn = super.getConnection();
-            PreparedStatement pstmt = conn.prepareStatement(sql);
-            PreparedStatement pstmt1 = conn.prepareStatement(sql1);
+            conn.setAutoCommit(false);
+            pstmt = conn.prepareStatement(sql);
+            pstmt1 = conn.prepareStatement(sql1);
             pstmt.setInt(1,no);
             remove = pstmt.executeUpdate();
             pstmt1.setInt(1,no);
             remove += pstmt1.executeUpdate();
             conn.commit();
-        }catch (SQLException e) {
-            try {
-                conn.rollback();
-            }catch (Exception ex)
-            {
-                ex.printStackTrace();
+        } catch (SQLException e) {
+            if(conn != null) {
+                try {
+                    conn.rollback();
+                }catch (SQLException ex){
+                    ex.printStackTrace();
+                }
             }
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+            e.printStackTrace();
+        }
+        finally {
+            try {if(pstmt1!=null){pstmt1.close();}}
+            catch (SQLException e) {e.printStackTrace();}
+            try {if(pstmt!=null){pstmt.close();}}
+            catch (SQLException e) {e.printStackTrace();}
+            try {if(conn!=null){conn.close();}}
+            catch (SQLException e) {e.printStackTrace();}
         }
         return  remove;
     }
 
     public List<MyGame> SortbyMaker(String maker) {
         List<MyGame> mylist =new ArrayList<>();;
-        Connection conn = null;
         String sql = "SELECT distinct g.no,g.title ,g.price,g.maker,listagg(gg.genre,',')" ;
-        sql+= " WITHIN GROUP (ORDER BY gg.genre) AS genres,g.To_char(g.releasedate,'YYYY-MM-DD') as Released_date,g.rate" ;
+        sql+= " WITHIN GROUP (ORDER BY gg.genre) AS genres,To_char(g.releasedate,'YYYY-MM-DD') as Released_date,g.rate" ;
         sql+= " FROM MyGame g" ;
         sql+=" left JOIN GameGenre gg ON g.no = gg.MyGame_no" ;
         sql+= " where UPPER(maker) like UPPER(?)" ;
         sql+=" GROUP BY g.no, g.title, g.price, g.maker, g.releasedate, g.rate" ;
         sql+=" ORDER BY g.no";
-        try{
-            conn = super.getConnection();
+        try(Connection conn = super.getConnection();
             PreparedStatement pstmt = conn.prepareStatement(sql);
+            ResultSet rs = pstmt.executeQuery();)
+        {
             String put = "%" +maker.trim() +"%";
             pstmt.setString(1,put);
-            ResultSet rs = pstmt.executeQuery();
+
             while (rs.next()){
                 MyGame mg = makeList(rs);
                 mylist.add(mg);
             }
-        }  catch (SQLException e) {
-            try{
-                conn.rollback();
-
-            } catch (SQLException ex) {
-                ex.printStackTrace();
-            }
-        }finally {
-            try {
-                if(conn!=null){
-                    conn.close();
-                }
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
         return mylist;
     }
@@ -269,27 +286,27 @@ public class MyGameDao extends SuperDao{
     public List<MyGame> genreList(String search) {
         List<MyGame>genre=new ArrayList<>();
         String sql = "SELECT distinct g.no,g.title ,g.price,g.maker,listagg(gg.genre,',')" ;
-        sql+= " WITHIN GROUP (ORDER BY gg.genre) AS genres,g.To_char(g.releasedate,'YYYY-MM-DD') as Released_date,g.rate" ;
+        sql+= "WITHIN GROUP (ORDER BY gg.genre) AS genres,To_char(g.releasedate,'YYYY-MM-DD') as Released_date,g.rate" ;
         sql+= " FROM MyGame g" ;
         sql+=" left JOIN GameGenre gg ON g.no = gg.MyGame_no" ;
         sql+= " where UPPER(gg.genre) like UPPER(?)" ;
         sql+=" GROUP BY g.no, g.title, g.price, g.maker, g.releasedate, g.rate" ;
         sql+=" ORDER BY g.no";
-        try{
-            Connection conn = super.getConnection();
+
+        try(Connection conn = super.getConnection();
             PreparedStatement pstmt = conn.prepareStatement(sql);
+            ResultSet rs = pstmt.executeQuery();
+            )
+        {
             String put ="%"+search+"%";
             pstmt.setString(1,put);
-            ResultSet rs = pstmt.executeQuery();
+            System.out.println(sql);
             while (rs.next()){
                 MyGame bean = makeList(rs);
                 genre.add(bean);
             }
         }catch (SQLException e) {
-            throw new RuntimeException(e);
-
-        } catch (Exception e) {
-          e.printStackTrace();
+            e.printStackTrace();
         }
 
         return genre;
@@ -298,12 +315,11 @@ public class MyGameDao extends SuperDao{
     public Boolean SamVer(String id){//verify title in MyGame
         String sql = "select count(*) as cnt from MyGame where UPPER(title)=UPPER(?)";
 
-        try{
-            Connection conn = super.getConnection();
+        try(Connection conn = super.getConnection();
             PreparedStatement pstmt = conn.prepareStatement(sql);
+            ResultSet rs = pstmt.executeQuery();)
+        {
             pstmt.setString(1,id);
-            ResultSet rs = pstmt.executeQuery();
-
             while(rs.next()) {
                 int a = rs.getInt("cnt");
                 if (a == 1) {
@@ -311,8 +327,7 @@ public class MyGameDao extends SuperDao{
                 }
             }
         }catch (SQLException e) {
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+            e.printStackTrace();
         }
         return false;
 
@@ -320,42 +335,38 @@ public class MyGameDao extends SuperDao{
     public Boolean VerGenre(String genre){//verify genre in MyGame
         String sql = "select count(*) as cnt from GameGenre where UPPER(genre) like UPPER(?)";
         int a=-1;
-        try{
-            Connection conn = super.getConnection();
+        try(Connection conn = super.getConnection();
             PreparedStatement pstmt = conn.prepareStatement(sql);
+            ResultSet rs = pstmt.executeQuery();)
+        {
             String put = "%"+genre+"%";
             pstmt.setString(1,put);
-            ResultSet rs = pstmt.executeQuery();
-
             while(rs.next()) {
                 a = rs.getInt("cnt");
-
             }
             if (a > 0) {
                 return true;
             }
         }catch (SQLException e) {
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+            e.printStackTrace();
         }
         return false;
 
     }
     public List<MyGame> viewTitle() {
-        String sql = "select title from MyGame ";
+        String sql = "select title from MyGame order by no";
         List<MyGame> justtitle = new ArrayList<>();
-        try{
-            Connection conn = super.getConnection();
+        try(Connection conn = super.getConnection();
             PreparedStatement pstmt = conn.prepareStatement(sql);
-            ResultSet rs = pstmt.executeQuery();
+            ResultSet rs = pstmt.executeQuery();)
+        {
             while (rs.next()) {
                 MyGame bean = new MyGame();
                 bean.setTitle(rs.getString("title"));
                 justtitle.add(bean);
             }
         }catch (SQLException e) {
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+            e.printStackTrace();
         }
         return  justtitle;
     }
@@ -372,7 +383,7 @@ public class MyGameDao extends SuperDao{
             ml.setreleasedate(rs.getString("Released_date"));
             ml.setRate(rs.getInt("rate"));
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            e.printStackTrace();
         }
         return ml;
     }
@@ -398,17 +409,15 @@ public class MyGameDao extends SuperDao{
     public int selectAll() {
         String sql = "select count(*) as cnt from MyGame";
         int maa =0;
-        try{
-            Connection conn = super.getConnection();
+        try(Connection conn = super.getConnection();
             PreparedStatement pstmt = conn.prepareStatement(sql);
-            ResultSet rs = pstmt.executeQuery();
+            ResultSet rs = pstmt.executeQuery();)
+        {
             if(rs.next()){
                 maa = rs.getInt("cnt");
             }
         }catch (SQLException e) {
             e.printStackTrace();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
         }
             return maa;
     }
@@ -417,73 +426,76 @@ public class MyGameDao extends SuperDao{
     public int countList(){
         int count=-1;
         String sql = "select count(*)+100 as cnt from MYGAME ";
-        try{
-            Connection conn = super.getConnection();
+        try(Connection conn = super.getConnection();
             PreparedStatement pstmt = conn.prepareStatement(sql);
-            ResultSet rs = pstmt.executeQuery();
+            ResultSet rs = pstmt.executeQuery();)
+        {
             if(rs.next()){
                 count=rs.getInt("cnt");
             }
-
-
         }catch (SQLException e) {
             e.printStackTrace();
-
-        } catch (Exception e) {
-            throw new RuntimeException(e);
         }
         return count;
     }
- public Boolean InGenre(int no , String gnre){
-        String sql = "select count(*) as cnt from GameGenre where UPPER(MyGame_no)=UPPER(?) and UPPER(genre)=UPPER(?)";
-         int count = -1;
-        try{
-             Connection conn = super.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql);
-             pstmt.setInt(1,no);
-             pstmt.setString(2,gnre);
-             ResultSet rs = pstmt.executeQuery();
-             if(rs.next()){
-                 count=rs.getInt("cnt");
-             }
-
-             if(count==1){
-                 return true;
-             }
-         }catch (SQLException e) {
-
-
-         } catch (Exception e) {
-             throw new RuntimeException(e);
-         }
-
-        return false;
- }
-public int getNotoTitle(String name){
-        String sql = "select no,title from MyGame where UPPER(title) = UPPER(?) ";
-        int getnum = 0;
-        try{
-            Connection conn = super.getConnection();
+    public int MaxNo(){
+        int count=-1;
+        String sql = "select Max(no) as cnt from MYGAME ";
+        try(Connection conn = super.getConnection();
             PreparedStatement pstmt = conn.prepareStatement(sql);
-            pstmt.setString(1,name);
-            ResultSet rs = pstmt.executeQuery();
+            ResultSet rs = pstmt.executeQuery();)
+        {
             if(rs.next()){
-                getnum = rs.getInt("no");
+                count=rs.getInt("cnt");
             }
-
-
-
         }catch (SQLException e) {
-
-
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+            e.printStackTrace();
         }
+        return count;
+    }
 
-        return getnum;
-}
+    public Boolean InGenre(int no , String gnre){
+            String sql = "select count(*) as cnt from GameGenre where UPPER(MyGame_no)=UPPER(?) and UPPER(genre)=UPPER(?)";
+             int count = -1;
+            try(Connection conn = super.getConnection();
+                PreparedStatement pstmt = conn.prepareStatement(sql);
+                ResultSet rs = pstmt.executeQuery();
+                )
+            {
+                 pstmt.setInt(1,no);
+                 pstmt.setString(2,gnre);
+                 if(rs.next()){
+                     count=rs.getInt("cnt");
+                 }
+                 if(count==1){
+                     return true;
+                 }
+             }catch (SQLException e) {
+                e.printStackTrace();
+             }
 
-public String fixLength(String s, int len){
+            return false;
+     }
+    public int getNotoTitle(String name){
+            String sql = "select no,title from MyGame where UPPER(title) = UPPER(?) ";
+            int getnum = 0;
+            try(Connection conn = super.getConnection();
+                PreparedStatement pstmt = conn.prepareStatement(sql);
+
+                ResultSet rs = pstmt.executeQuery();)
+            {
+                pstmt.setString(1,name);
+                if(rs.next()){
+                    getnum = rs.getInt("no");
+                }
+
+            }catch (SQLException e) {
+                e.printStackTrace();
+            }
+            return getnum;
+    }
+
+    public String fixLength(String s, int len){
         if(s==null){return "" ;}
 
         return (s.length()>len)?s.substring(0,len):String.format("%-"+len+"s",s);
