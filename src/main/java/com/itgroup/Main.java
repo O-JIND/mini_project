@@ -17,16 +17,16 @@ public class Main {
         int a =-1;
         while(true) {
             System.out.println("""
-                    0 : 종료
-                    1 : 전체 목록
-                    2 : 게임 추가
-                    3 : 정보 수정
-                    4 : 게임 삭제
-                    5 : 제작사 별 목록
-                    6 : 장르 별 게임 검색
-                    7 : 모든 게임 개수
-                    8 : 출시일 순으로 보기
-                    9 : 메타크리틱순으로 보기
+                    0 : Exit
+                    1 : Entire List
+                    2 : Add Game
+                    3 : Update Game
+                    4 : Delete Game
+                    5 : List by Maker
+                    6 : List by Genre
+                    7 : All Game
+                    8 : Sort by Released Date
+                    9 : Sort by Metacritic Score
                     """);
             try{
             a = sc.nextInt();
@@ -65,7 +65,7 @@ public class Main {
 
             }catch (InputMismatchException e) {
                 System.out.println("Please enter Integer.");
-                sc.nextLine(); // 잘못된 토큰/개행 비우기
+                sc.nextLine();
                 continue;
             }
             if (a<0||a>9){

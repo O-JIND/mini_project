@@ -129,8 +129,9 @@ public class MyGameDao extends SuperDao{
             conn = super.getConnection();
             conn.setAutoCommit(false);
             int no=mg.getNo();
+
             if(mg.getPrice()!=0){  price= mg.getPrice();
-                mapgame.put("price",price);}
+            mapgame.put("price",price);}
 
             if(!mg.getMaker().isEmpty()&&mg.getMaker()!=null){  maker = mg.getMaker();
             mapgame.put("maker",maker);}
@@ -141,10 +142,10 @@ public class MyGameDao extends SuperDao{
             if(mg.getRate()!=0){rt = mg.getRate();
             mapgame.put("rate",rt);    }
 
-    // =============================================================================
-
+    //================               ================              ================              ================
+            System.out.println(no);
             int i = 0;
-            if(!mapgame.isEmpty()) {
+            if(!mapgame.isEmpty())  {
                 //genre X price maker date rate sql
                 for (Object s : mapgame.keySet()) {
                     String plus = s + "=?";
@@ -169,16 +170,16 @@ public class MyGameDao extends SuperDao{
 
 
             genre = mg.getGenres();
-            if(!genre.isEmpty()) {
+            System.out.println(genre);
+            if(genre !=null&& !genre.isEmpty()) {
                 clr = conn.prepareStatement(genreclr);
                 pstmt1 = conn.prepareStatement(sql1);
                 clr.setInt(1, no);
 
-                if (update < 0) {
-                    update = clr.executeUpdate();
-                } else {
-                    update += clr.executeUpdate();
-                }
+
+                update = clr.executeUpdate();
+
+                System.out.println(update);
 
 
                 if (genre.contains(",")) {
@@ -190,8 +191,8 @@ public class MyGameDao extends SuperDao{
                 } else {
                     pstmt1.setInt(1, no);
                     pstmt1.setString(2, genre);
-                    update += pstmt1.executeUpdate();
-                }
+                    update = pstmt1.executeUpdate();
+                }System.out.println(update);
             }
 
             conn.commit();
@@ -267,14 +268,17 @@ public class MyGameDao extends SuperDao{
         sql+=" ORDER BY g.no";
         try(Connection conn = super.getConnection();
             PreparedStatement pstmt = conn.prepareStatement(sql);
-            ResultSet rs = pstmt.executeQuery();)
+            )
         {
             String put = "%" +maker.trim() +"%";
             pstmt.setString(1,put);
 
-            while (rs.next()){
-                MyGame mg = makeList(rs);
-                mylist.add(mg);
+            try(ResultSet rs = pstmt.executeQuery();)
+            {
+                while (rs.next()) {
+                    MyGame mg = makeList(rs);
+                    mylist.add(mg);
+                }
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -295,15 +299,18 @@ public class MyGameDao extends SuperDao{
 
         try(Connection conn = super.getConnection();
             PreparedStatement pstmt = conn.prepareStatement(sql);
-            ResultSet rs = pstmt.executeQuery();
             )
         {
             String put ="%"+search+"%";
             pstmt.setString(1,put);
-            System.out.println(sql);
-            while (rs.next()){
-                MyGame bean = makeList(rs);
-                genre.add(bean);
+
+            try(ResultSet rs = pstmt.executeQuery();){
+
+                System.out.println(sql);
+                while (rs.next()){
+                    MyGame bean = makeList(rs);
+                    genre.add(bean);
+                }
             }
         }catch (SQLException e) {
             e.printStackTrace();
@@ -317,14 +324,16 @@ public class MyGameDao extends SuperDao{
 
         try(Connection conn = super.getConnection();
             PreparedStatement pstmt = conn.prepareStatement(sql);
-            ResultSet rs = pstmt.executeQuery();)
-        {
-            pstmt.setString(1,id);
+            )
+        {   pstmt.setString(1,id);
+            try(ResultSet rs = pstmt.executeQuery();){
+
             while(rs.next()) {
                 int a = rs.getInt("cnt");
                 if (a == 1) {
                     return true;
                 }
+            }
             }
         }catch (SQLException e) {
             e.printStackTrace();
@@ -337,15 +346,13 @@ public class MyGameDao extends SuperDao{
         int a=-1;
         try(Connection conn = super.getConnection();
             PreparedStatement pstmt = conn.prepareStatement(sql);
-            ResultSet rs = pstmt.executeQuery();)
+            )
         {
             String put = "%"+genre+"%";
             pstmt.setString(1,put);
-            while(rs.next()) {
-                a = rs.getInt("cnt");
-            }
-            if (a > 0) {
-                return true;
+            try(ResultSet rs = pstmt.executeQuery();){
+                while(rs.next()) {a = rs.getInt("cnt");}
+                if (a > 0) {return true;}
             }
         }catch (SQLException e) {
             e.printStackTrace();
@@ -459,16 +466,13 @@ public class MyGameDao extends SuperDao{
              int count = -1;
             try(Connection conn = super.getConnection();
                 PreparedStatement pstmt = conn.prepareStatement(sql);
-                ResultSet rs = pstmt.executeQuery();
                 )
             {
                  pstmt.setInt(1,no);
                  pstmt.setString(2,gnre);
-                 if(rs.next()){
-                     count=rs.getInt("cnt");
-                 }
-                 if(count==1){
-                     return true;
+                 try(ResultSet rs = pstmt.executeQuery();){
+                     if(rs.next()){count=rs.getInt("cnt");}
+                     if(count==1){return true;}
                  }
              }catch (SQLException e) {
                 e.printStackTrace();
@@ -481,14 +485,14 @@ public class MyGameDao extends SuperDao{
             int getnum = 0;
             try(Connection conn = super.getConnection();
                 PreparedStatement pstmt = conn.prepareStatement(sql);
-
-                ResultSet rs = pstmt.executeQuery();)
+                )
             {
                 pstmt.setString(1,name);
-                if(rs.next()){
-                    getnum = rs.getInt("no");
+                try(ResultSet rs = pstmt.executeQuery();) {
+                    if (rs.next()) {
+                        getnum = rs.getInt("no");
+                    }
                 }
-
             }catch (SQLException e) {
                 e.printStackTrace();
             }

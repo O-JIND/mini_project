@@ -31,14 +31,19 @@ select count(*)+100 from MYGAME
 select  * from genre;
 select  * from TOP;
 
-
-
+select no,title from MyGame where UPPER(title) = UPPER('hades ii') 
+select count(*)+100 as cnt from MYGAME
 select count(*) as cnt from MyGame where genre = '%Indie%';
 
 select * from MyGame where maker like '%Valve%'?
 
 
 
+insert into MyGame(no,title,price,maker,releasedate,rate)
+values (?,?,?,?,?,?)
+insert into gamegenre
+values (?,?)
+        
 SELECT distinct g.no,g.title ,g.price,g.maker,listagg(gg.genre,',')
 WITHIN GROUP (ORDER BY gg.genre) AS genres,g.releasedate,g.rate
 FROM MyGame g
@@ -73,7 +78,9 @@ FROM MyGame;
 
 
 
-delete from GameGenre where MyGame_no =163;]]></console>
+select * from GameGenre where MyGame_no > 160;
+
+rollback ;]]></console>
       <console name="ichigo 1" type="STANDARD" schema="ICHIGO" session="Main"><![CDATA[create table MyGame (
             no number primary key,
             title varchar2(100) unique,

@@ -31,52 +31,55 @@ public class MyGamemanager {
         int Max = Gda.MaxNo();
         if(!(no>Max)){ no=Max+1; }
         mg.setNo(no);
-        System.out.print("title : ");
+        System.out.print("\ntitle : ");
         String title=sc.nextLine().trim();
         if (!Gda.SamVer(title)) {//SamVer: id 중복 확인 true;
             mg.setTitle(title);
         }else {
-            System.out.println("중복되는 게임입니다.");
+            String msg = title + " is exist ";
+            System.out.println(msg);
             return 0;
         }
 
-        System.out.print("input price : ");
+        System.out.print("Enter price : ");
         double price=sc.nextDouble();
         mg.setPrice(price);
         sc.nextLine();
 
-        System.out.print("input maker : ");
+        System.out.print("Enter maker : ");
         String maker=sc.nextLine().trim();
         mg.setMaker(maker);
-
+        int i = 0;
         while(true){//"Object ,Object  ,Object " 형태로 전달
-        System.out.print("input genres (No one else, press enter): ");
-        genres=sc.nextLine().trim();
-        gen.append(genres);
-        gen.append(", ");
-        if(genres.isEmpty()){
-            gen.deleteCharAt(gen.length()-1);//마지막 추가된 , 제거
-            break;
+            System.out.print("Enter genres (press Enter to skip) : ");
+            genres=sc.nextLine().trim();
+            if(genres.isEmpty()){break;}
+            if(i>0){
+                gen.append(",");
+            }
+            gen.append(genres);
+            i++;
         }
-        }
-        mg.setGenres(gen.toString());//StringBuilder 문자열로 변환 후 전달
+        System.out.println(gen.toString());
+        mg.setGenres(gen.toString());
+        //StringBuilder 문자열로 변환 후 전달
 
-        System.out.print("input  releasedate : ");
+        System.out.print("Enter  released date : ");
         String releasedate=sc.nextLine().trim();
         mg.setreleasedate(releasedate);
 
-        System.out.print("input rate : ");
+        System.out.print("Enter rate : ");
         int rate=sc.nextInt();
         mg.setRate(rate);
         sc.nextLine();
 
         cnt = Gda.addList(mg);
         if(cnt==0){
-            System.out.println("오류 발생");
+            System.out.println("An error occurred.");
         }else if(cnt==-1){
-            System.out.println("추가 실패");
+            System.out.println("Failed to Add.");
         }else{
-            System.out.println("추가 성공");
+            System.out.println("Added Successfully");
         }
 
         return cnt;
@@ -91,67 +94,61 @@ public class MyGamemanager {
         MyGame mg = new MyGame();
         String genres=null;
         StringBuilder gen = new StringBuilder();
-
-        System.out.print("Update title : ");
-        String title = sc.next();
+        System.out.print("\nUpdate title : ");
+        String title = sc.nextLine().trim();
         int num = Gda.getNotoTitle(title);
-        int no = Gda.countList();
+        int no = Gda.MaxNo();
         if (Gda.SamVer(title)) {
             if(0<num && num<=no) {
                 mg.setTitle(title);
                 mg.setNo(num);
-                sc.nextLine();
 
             }else {
-                System.out.print("Try again.");
+                System.out.print("Please try again.");
                 return 0;
             }
         } else {
-            System.out.print("No one in List");
+            System.out.print("Title not found in the list.");
             return 0;
         }
-        System.out.print ("price (No update, press 0) : ");
+        System.out.print ("Enter price (press 0 to skip) : ");
         double price=sc.nextDouble();
         if(price!=0){
             mg.setPrice(price);
         }
         sc.nextLine();
-        System.out.print("maker (No update, press  enter) : ");
+        System.out.print("Enter maker (press enter to skip) : ");
         String maker=sc.nextLine().trim();
         mg.setMaker(maker);
         int i = 0;
         while(true){
-            System.out.print("genres (No update, press enter) : ");
+            System.out.print("Enter genres (press enter to skip) : ");
             genres=sc.nextLine().trim();
             if(genres.isEmpty()){break;}
             if(i>0){
-                gen.append(", ");
+                gen.append(",");
             }
             gen.append(genres);
             i++;
         }
         mg.setGenres(gen.toString());
-
-        System.out.print("releasedate (No update, press enter) : ");
+        System.out.print("Enter released date (press enter to skip) : ");
         String releasedate=sc.nextLine().trim();
         mg.setreleasedate(releasedate);
 
-        System.out.print("rate (No update, press 0) : ");
+        System.out.print("Enter rate (press 0 to skip) : ");
         int rate = sc.nextInt();
         sc.nextLine();
         mg.setRate(rate);
-
-        System.out.println("시작");
         cnt = Gda.updateList(mg);
-        System.out.println("끝");
 
         if(cnt==-1){
-            System.out.println("실패");
+            System.out.println("Fail to update");
         }else if(cnt ==0){
-            System.out.println("문제 발생");
+            System.out.println("An error occurred");
         }
         else {
-            System.out.println("변경 성공!");
+            System.out.println("Update Successfully");
         }
         return cnt;
 
@@ -162,21 +159,21 @@ public class MyGamemanager {
     public int removeList() {
         int cnt =-1 ;
         Gda.viewTitle();
-        System.out.print("Remove title : ");
+        System.out.print("Enter title to delete : ");
 
         String title=sc.nextLine();
         int no = Gda.getNotoTitle(title);
         if (Gda.SamVer(title)) {
             cnt = Gda.removeList(no);
         }else {
-            System.out.println("존재하지 않는 게임입니다.");
+            System.out.println(title + " does not exist");
             return 0;
         }
 
         if(cnt>0){
-            System.out.println("삭제 성공");
+            System.out.println("Delete completed");
         }else {
-            System.out.println("삭제 실패");
+            System.out.println("Delete failed");
         }
 
         return cnt;
@@ -184,7 +181,7 @@ public class MyGamemanager {
 
 
     public List<MyGame> SortbyMaker() {
-        System.out.print("Enter Maker : ");
+        System.out.print("Enter maker : ");
         String mk = sc.next();
         sc.nextLine();
         List<MyGame> makerlist=Gda.SortbyMaker(mk);
@@ -216,7 +213,7 @@ public class MyGamemanager {
             genre= Gda.genreList(search);
             Gda.show(genre);
         }else {
-            System.out.println( search +" doesn't  exist.");
+            System.out.println( search +" does not  exist.");
         }
 
 
@@ -230,11 +227,11 @@ public class MyGamemanager {
             int a = sc.nextInt();
 
             if (a==1) {
-                System.out.println("See you");
+                System.out.println("System shutting down...");
                 System.exit(0);
             }
         } catch (Exception e) {
-           System.out.println("Try again.");
+           System.out.println("Please try again.");
        }
     }
 
@@ -247,10 +244,17 @@ public class MyGamemanager {
         return cntall;
     }
     public void viewone(List<MyGame> list){
+        int sort = 1;
         for(MyGame s : list){
             String title = s.getTitle();
-            String msg = "title : "+title;
-            System.out.println(msg);
+
+            String fixtitle=Gda.fixLength(title,30);
+            if (sort%3!=0) {
+                System.out.printf("title :  %-30s     " ,fixtitle);
+            }else {
+                System.out.printf("title :  %-30s     %n" ,fixtitle);
+            }
+            sort++;
 
         }
     }
